@@ -28,6 +28,11 @@ import okio.Options
  *
  * This implementation is optimized for readability over efficiency.
  *
+ * This implements non-transitional processing by preserving deviation characters.
+ *
+ * This implementation's STD3 rules are configured to `UseSTD3ASCIIRules=false`. This is
+ * permissive and permits the `_` character.
+ *
  * [mapping table]: https://www.unicode.org/reports/tr46/#IDNA_Mapping_Table
  * [mapping step]: https://www.unicode.org/reports/tr46/#ProcessingStepMap
  */
@@ -51,13 +56,16 @@ class PlainTextIdnaMappingTable internal constructor(
 
     when (mapping.type) {
       TYPE_IGNORED -> Unit
-      TYPE_DEVIATION, TYPE_MAPPED, TYPE_DISALLOWED_STD3_MAPPED -> {
+      TYPE_MAPPED, TYPE_DISALLOWED_STD3_MAPPED -> {
         sink.write(mapping.mappedTo)
       }
-      TYPE_DISALLOWED_STD3_VALID, TYPE_VALID -> {
+      TYPE_DEVIATION, TYPE_DISALLOWED_STD3_VALID, TYPE_VALID -> {
         sink.writeUtf8CodePoint(codePoint)
       }
-      TYPE_DISALLOWED -> result = false
+      TYPE_DISALLOWED -> {
+        sink.writeUtf8CodePoint(codePoint)
+        result = false
+      }
     }
 
     return result

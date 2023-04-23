@@ -47,10 +47,10 @@ class IdnaMappingTableTest {
   }
 
   @Test fun deviations() {
-    assertThat("ß".map()).isEqualTo("ss")
-    assertThat("ς".map()).isEqualTo("σ")
-    assertThat("\u200c".map()).isEqualTo("")
-    assertThat("\u200d".map()).isEqualTo("")
+    assertThat("ß".map()).isEqualTo("ß")
+    assertThat("ς".map()).isEqualTo("ς")
+    assertThat("\u200c".map()).isEqualTo("\u200c")
+    assertThat("\u200d".map()).isEqualTo("\u200d")
   }
 
   @Test fun ignored() {
@@ -59,15 +59,18 @@ class IdnaMappingTableTest {
   }
 
   @Test fun disallowed() {
-    assertThat("\u0080".mapExpectingErrors()).isEqualTo("")
+    assertThat("\u0080".mapExpectingErrors()).isEqualTo("\u0080")
   }
 
   @Test fun disallowedStd3Valid() {
+    assertThat("_".map()).isEqualTo("_")
     assertThat("/".map()).isEqualTo("/")
+    assertThat("≠".map()).isEqualTo("≠")
   }
 
   @Test fun disallowedStd3Mapped() {
     assertThat("\u00b8".map()).isEqualTo("\u0020\u0327")
+    assertThat("⑴".map()).isEqualTo("(1)")
   }
 
   @Test fun outOfBounds() {
